@@ -53,7 +53,7 @@ module.exports.signin = async (req, res, next) => {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        const user = await userModel.findOne({ email }).select("+password");
+        const user = await usermodel.findOne({ email }).select("+password");
 
         if (!user) {
             return res.status(400).json({ message: "Invalid email or password" });

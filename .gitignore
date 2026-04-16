@@ -1,0 +1,16 @@
+.env
+node_modules
+dist
+build
+coverage
+logs
+
+# Ignore environment variable files
+.env
+.env.local
+.env.development
+.env.test
+
+# Ignore log files
+logs
+*.log
