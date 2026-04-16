@@ -1,4 +1,4 @@
-const userModel = require("../models/user_model");
+const {usermodel} = require("../models/user_model");
 const jwt = require("jsonwebtoken");
 const blacklistModel = require("../models/blacklist_model");
 
@@ -40,7 +40,7 @@ module.exports.isAuthenticated = async (req, res, next) => {
             return res.status(401).json({ message: "Invalid or expired token" });
         }
 
-        const user = await userModel.findById(decoded._id).select("-password");
+        const user = await usermodel.findById(decoded._id).select("-password");
 
         if (!user) {
             return res.status(401).json({ message: "User not found" });

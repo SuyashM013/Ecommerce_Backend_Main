@@ -24,3 +24,8 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })
 
+
+
+// email - sm11m@gmail.com
+// pass - Sm@292929
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OWUwOGI2ZjM1MTljYWM0MmRkYTY2ZDIiLCJpYXQiOjE3NzYzMjQ3MTEsImV4cCI6MTc3NjMyODMxMX0.iTeXOnQFhF_SZVLdl0QuiTpyIPGNK56lTYr15lY1TrU

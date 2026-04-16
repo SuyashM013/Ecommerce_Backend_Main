@@ -9,7 +9,7 @@ module.exports.signup = async (req, res, next) => {
     try {
         const { username, email, password, role } = req.body;
 
-        const  error  = ValidateUser( {username, email, password, role} );
+        const error = ValidateUser({ username, email, password, role });
 
         if (error) {
             return res.status(400).json({ message: error });
@@ -103,4 +103,17 @@ module.exports.logout = async (req, res, next) => {
 module.exports.check = async (req, res, next) => {
     // res.send("User route is working").status(200);
     res.status(200).json({ message: "User route is working" });
+}
+
+module.exports.getProfile = async (req, res, next) => {
+    try {
+        const user = await usermodel.findById(req.user._id);
+
+        res.status(200).json({ message: "User profile retrieved successfully", user });
+
+
+
+    } catch (err) {
+        next(err);
+    }
 }
