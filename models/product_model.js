@@ -111,6 +111,10 @@ const validateProduct = (product) => {
                 "array.min": "At least one image is required",
             }),
 
+        // images: Joi.string().required().messages({
+        //     "string.empty": "Image URL is required",
+        // }),
+
         category: Joi.string()
             .required()
             .messages({
@@ -141,6 +145,6 @@ const validateProduct = (product) => {
     }
 }
 
-const Product = mongoose.model("Product", productSchema);
+const product = mongoose.model("Product", productSchema);
 
-module.exports = { Product, validateProduct };
+module.exports = { product, validateProduct };
