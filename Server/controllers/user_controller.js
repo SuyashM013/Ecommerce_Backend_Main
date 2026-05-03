@@ -50,7 +50,7 @@ module.exports.signup = async (req, res, next) => {
             expiresIn: "5h",
         });
 
-        res.status(201).json({ message: "User registered successfully", user, token });
+       return res.status(201).json({ message: "User registered successfully", user, token });
 
 
 
@@ -85,7 +85,7 @@ module.exports.signin = async (req, res, next) => {
         });
 
 
-        res.status(200).json({ message: "User signed in successfully", user, token });
+        return res.status(200).json({ message: "User signed in successfully", user, token });
 
     } catch (err) {
         next(err);
@@ -106,7 +106,7 @@ module.exports.logout = async (req, res, next) => {
             return res.status(400).json({ message: "Token is already blacklisted" });
         }
         await blacklistModel.create({ token });
-        res.status(200).json({ message: "User logged out successfully" });
+        return res.status(200).json({ message: "User logged out successfully" });
     }
     catch (err) {
         next(err);
@@ -115,14 +115,14 @@ module.exports.logout = async (req, res, next) => {
 
 module.exports.check = async (req, res, next) => {
     // res.send("User route is working").status(200);
-    res.status(200).json({ message: "User route is working" });
+    return res.status(200).json({ message: "User route is working" });
 }
 
 module.exports.getProfile = async (req, res, next) => {
     try {
         const user = await usermodel.findById(req.user._id);
 
-        res.status(200).json({ message: "User profile retrieved successfully", user });
+        return res.status(200).json({ message: "User profile retrieved successfully", user });
 
 
 
@@ -136,11 +136,11 @@ module.exports.getMyProducts = async (req, res, next) => {
     try {
         const prod = await productModel.find();
 
-        res.status(200).json({ message: "Products retrieved successfully", products: prod });
+        return res.status(200).json({ message: "Products retrieved successfully", products: prod });
 
     } catch (err) {
         next(err);
-        res.status(500).json({ message: "Failed to retrieve products" });
+        return res.status(500).json({ message: "Failed to retrieve products" });
     }
 } // All products fetch
 
@@ -152,12 +152,12 @@ module.exports.getProductById = async (req, res, next) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.status(200).json({ prod });
+        return res.status(200).json({ prod });
 
 
     } catch (err) {
         next(err);
-        res.status(500).json({ message: "Failed to retrieve product" });
+        return res.status(500).json({ message: "Failed to retrieve product" });
     }
 } // Single product fetch by ID
 
@@ -185,7 +185,7 @@ module.exports.createOrder = async (req, res, next) => {
 
     } catch (err) {
         next(err);
-        res.status(500).json({ message: "Failed to create order" });
+        return res.status(500).json({ message: "Failed to create order" });
     }
 }
 
@@ -217,11 +217,11 @@ module.exports.verifyPayment = async (req, res, next) => {
         await payment.save();
 
 
-        res.status(200).json({ message: "Payment verified successfully" });
+       return res.status(200).json({ message: "Payment verified successfully" });
 
 
     } catch (err) {
         next(err);
-        res.status(500).json({ message: "Failed to verify payment" });
+        return res.status(500).json({ message: "Failed to verify payment" });
     }
 }
