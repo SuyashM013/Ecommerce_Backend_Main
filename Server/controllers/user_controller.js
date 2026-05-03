@@ -138,8 +138,6 @@ module.exports.getMyProducts = async (req, res, next) => {
 
         res.status(200).json({ message: "Products retrieved successfully", products: prod });
 
-
-
     } catch (err) {
         next(err);
         res.status(500).json({ message: "Failed to retrieve products" });

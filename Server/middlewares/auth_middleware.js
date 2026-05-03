@@ -37,7 +37,7 @@ module.exports.isAuthenticated = async (req, res, next) => {
         try {
             decoded = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
-            return res.status(401).json({ message: "Invalid or expired token" });
+            next(err);
         }
 
         const user = await usermodel.findById(decoded._id).select("-password");

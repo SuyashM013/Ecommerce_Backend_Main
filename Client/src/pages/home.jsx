@@ -5,25 +5,26 @@ import axios from 'axios'
 function home() {
     const [product, setProduct] = React.useState([])
 
-    useEffect(() => {
-        getProducts()
-    }, [])
-
+    
     const getProducts = async () => {
         try{
             const response = await axios.get('https://ecommerce-backend-main-1.onrender.com/api/users/products', {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
                 }
             })
             const data = await response.data
             console.log(data)
             setProduct(data.products)
-
+            
         } catch (error) {
             console.error('Error fetching products:', error)
         }
     }
+    
+    useEffect(() => {
+        getProducts()
+    }, [])
 
     return (
         <div className='home w-full h-screen flex flex-col items-center justify-center bg-gray-400'>
