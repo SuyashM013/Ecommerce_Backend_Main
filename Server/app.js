@@ -3,7 +3,7 @@ const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
-app.use(cors());
+
 
 const multer = require('multer');
 
@@ -16,6 +16,7 @@ const connectDB = require('./config/mongodb');
 connectDB();
 
 
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
