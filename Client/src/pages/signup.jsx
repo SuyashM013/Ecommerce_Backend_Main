@@ -131,9 +131,12 @@ function Signup() {
 
             <p className='mt-6 text-center text-sm text-slate-300'>
               Already have an account?{' '}
-              <a href='/login' className='font-medium text-cyan-200 transition hover:text-white'>
+              {/* <a href='/signin' className='font-medium text-cyan-200 transition hover:text-white'>
                 Log in
-              </a>
+              </a> */}
+              <button onClick={() => navigate('/signin')} className='font-medium cursor-pointer text-cyan-200 transition hover:text-white'>
+                Sign in
+              </button>
             </p>
           </div>
         </div>

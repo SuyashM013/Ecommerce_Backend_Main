@@ -81,7 +81,7 @@ module.exports.signin = async (req, res, next) => {
         await user.save();
 
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-            expiresIn: "1h",
+            expiresIn: "3h",
         });
 
 
