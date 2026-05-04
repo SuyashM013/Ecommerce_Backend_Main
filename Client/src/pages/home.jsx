@@ -8,7 +8,7 @@ function home() {
     
     const getProducts = async () => {
         try{
-            const response = await axios.get('https://ecommerce-backend-main-1.onrender.com/api/users/products', {
+            const response = await axios.get('https://localhost:5500/api/users/products', {
                 headers: {
                     "Authorization": `Bearer ${localStorage.getItem('token')}`
                 }

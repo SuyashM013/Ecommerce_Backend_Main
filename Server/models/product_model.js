@@ -145,6 +145,6 @@ const validateProduct = (product) => {
     }
 }
 
-const product = mongoose.model("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
 
-module.exports = { product, validateProduct };
+module.exports = { Product, validateProduct };

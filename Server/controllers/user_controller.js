@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
 });
 
 
-const productModel = require("../models/product_model");
+const {Product} = require("../models/product_model");
 
 module.exports.signup = async (req, res, next) => {
     try {
@@ -134,7 +134,7 @@ module.exports.getProfile = async (req, res, next) => {
 
 module.exports.getMyProducts = async (req, res, next) => {
     try {
-        const prod = await productModel.find();
+        const prod = await Product.find();
 
         return res.status(200).json({ message: "Products retrieved successfully", products: prod });
 
@@ -169,7 +169,6 @@ module.exports.createOrder = async (req, res, next) => {
             amount: product.price * 100, // Amount in paise
             currency: "INR",
             receipt: product._id,
-
 
         }
 
