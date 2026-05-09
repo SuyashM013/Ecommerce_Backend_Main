@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+import axios from 'axios'
 
 function ProductDetails() {
     const location = useLocation()
@@ -12,6 +14,59 @@ function ProductDetails() {
     const [activeImage, setActiveImage] = useState(images[0] ?? '')
 
     const ratingValue = typeof product.ratingsAverage === 'number' ? product.ratingsAverage.toFixed(1) : '0.0'
+
+    const { error, isLoading, Razorpay } = useRazorpay();
+    // const [Razorpay] = useRazorpay()
+
+    const handlePayment = async () => {
+
+
+        let order = await axios.get(`https://ecommerce-backend-main-1.onrender.com/api/users/order/${product._id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        order = order.data.order;
+        // console.log(order)
+
+        const options = {
+            key: "rzp_test_23AYUtqfvaYhUd",
+            amount: order.amount, // Amount in paise
+            currency: order.currency, // Currency
+            name: "Achma Dior ",
+            image: "https://example.com/your_logo",
+            description: `Purchase of ${product.name}`,
+            order_id: order.id, // Generate order_id on server
+            handler: async (response) => {
+                // console.log(response);
+                // alert("Payment Successful!");
+                const res = await axios.post(`https://ecommerce-backend-main-1.onrender.com/api/users/verify/${order.id}`, {
+                    orderId: response.razorpay_order_id,
+                    paymentId: response.razorpay_payment_id,
+                    signature: response.razorpay_signature,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                console.log(res.data);
+            },
+            prefill: {
+                name: "Suyash Mishra",
+                email: "john.doe@example.com",
+                contact: "9999999999",
+            },
+            notes: {
+                productId: product._id,
+            },
+            // theme: {
+            //     color: "#F37254",
+            // },
+        };
+
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.open();
+    };
 
     return (
         <main className='relative min-h-screen overflow-hidden bg-slate-950 px-4 py-10 text-white'>
@@ -53,11 +108,10 @@ function ProductDetails() {
                                         key={`${image}-${index}`}
                                         type='button'
                                         onClick={() => setActiveImage(image)}
-                                        className={`overflow-hidden rounded-2xl border p-1 transition ${
-                                            activeImage === image
-                                                ? 'border-cyan-300/70 bg-cyan-300/10'
-                                                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-                                        }`}
+                                        className={`overflow-hidden rounded-2xl border p-1 transition ${activeImage === image
+                                            ? 'border-cyan-300/70 bg-cyan-300/10'
+                                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                                            }`}
                                     >
                                         <img
                                             src={image}
@@ -118,12 +172,15 @@ function ProductDetails() {
                             </div>
                         </div>
 
+                        <div> {product._id}</div>
+
                         <div className='mt-8 flex flex-col gap-3 sm:flex-row'>
                             <button className='rounded-2xl bg-linear-to-r from-cyan-400 via-sky-400 to-indigo-500 px-5 py-3.5 font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-110'>
                                 Add to Cart
                             </button>
-                            <button className='rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 font-semibold text-white transition hover:border-cyan-300/40 hover:bg-white/10'>
-                                Save for later
+                            <button onClick={handlePayment} className='rounded-2xl border border-white/10 bg-red-500 px-5 py-3.5 font-semibold text-slate-300 shadow-lg shadow-white/10 transition hover:border-white/20 hover:bg-red-600 cursor-pointer'>
+                                {/* Save for later */}
+                                Buy Now
                             </button>
                         </div>
                     </div>

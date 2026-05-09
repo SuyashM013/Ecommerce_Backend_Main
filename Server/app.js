@@ -27,7 +27,7 @@ app.get('/check', (req, res, next) => {
 app.use("/", indexRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productsRoutes);
-
+ 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })

@@ -5,7 +5,7 @@ const blacklistModel = require("../models/blacklist_model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const paymentModel = require("../models/payment_model");
+const PaymentModel = require("../models/payment_model");
 const orderModel = require("../models/order_model");
 
 const Razorpay = require('razorpay');
@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
 });
 
 
-const {Product} = require("../models/product_model");
+const {productModel} = require("../models/product_model");
 
 module.exports.signup = async (req, res, next) => {
     try {
@@ -134,7 +134,7 @@ module.exports.getProfile = async (req, res, next) => {
 
 module.exports.getMyProducts = async (req, res, next) => {
     try {
-        const prod = await Product.find();
+        const prod = await productModel.find();
 
         return res.status(200).json({ message: "Products retrieved successfully", products: prod });
 
@@ -146,7 +146,7 @@ module.exports.getMyProducts = async (req, res, next) => {
 
 module.exports.getProductById = async (req, res, next) => {
     try {
-        const prod = await productModel.findById(req.params.id);
+        const prod = await productModel.findById(req.params._id);
 
         if (!prod) {
             return res.status(404).json({ message: "Product not found" });
@@ -163,28 +163,34 @@ module.exports.getProductById = async (req, res, next) => {
 
 module.exports.createOrder = async (req, res, next) => {
     try {
-        const product = await productModel.findById(req.params.id);
+        const prod = await productModel.findById(req.params.id);
+        // console.log(prod);
+
+        if(!prod) {
+            return res.status(404).json({ message: "Product not found" });
+        }
 
         const option = {
-            amount: product.price * 100, // Amount in paise
+            amount: prod.price * 100, // Amount in paise
             currency: "INR",
-            receipt: product._id,
+            receipt: prod._id.toString(),
 
         }
 
         const order = await razorpay.orders.create(option);
         res.status(200).json({ message: "Order created successfully", order });
-
-        const payment = await paymentModel.create({
+        
+        const payment = await PaymentModel.create({
             order: order.id,
             amount: option.amount,
             currency: option.currency,
-            status: "pending",
+            status: "pending"
         });
-
+        
     } catch (err) {
         next(err);
-        return res.status(500).json({ message: "Failed to create order" });
+        console.log(err);
+        // return res.status(500).json({ message: "Failed to create order" });
     }
 }
 
@@ -198,14 +204,14 @@ module.exports.verifyPayment = async (req, res, next) => {
         const isValid = validatePaymentVerification({ order_id: orderId, payment_id: paymentId }, signature, secret);
 
         if (!isValid) {
-            const payment = await paymentModel.findOne({ order: orderId });
+            const payment = await PaymentModel.findOne({ order: orderId });
 
             payment.status = "Failed";
 
             return res.status(400).json({ message: "Payment Verification Failed" });
         }
 
-        const payment = await paymentModel.findOne({ order: orderId });
+        const payment = await PaymentModel.findOne({ order: orderId });
         if (!payment) {
             return res.status(404).json({ message: "Payment not found, Try again later" });
         }
