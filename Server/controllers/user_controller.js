@@ -188,9 +188,9 @@ module.exports.createOrder = async (req, res, next) => {
         });
         
     } catch (err) {
-        next(err);
+        // next(err);
         console.log(err);
-        // return res.status(500).json({ message: "Failed to create order" });
+        return res.status(500).json({ message: "Failed to create order" });
     }
 }
 
@@ -226,7 +226,7 @@ module.exports.verifyPayment = async (req, res, next) => {
 
 
     } catch (err) {
-        next(err);
+        // next(err);
         return res.status(500).json({ message: "Failed to verify payment" });
     }
 }

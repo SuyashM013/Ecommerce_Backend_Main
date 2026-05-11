@@ -2,10 +2,12 @@ import React, { useMemo, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 function ProductDetails() {
     const location = useLocation()
     const product = location.state?.product ?? {}
+    const navigate = useNavigate()
 
     const images = useMemo(() => {
         return Array.isArray(product.images) && product.images.length > 0 ? product.images : []
@@ -16,9 +18,14 @@ function ProductDetails() {
     const ratingValue = typeof product.ratingsAverage === 'number' ? product.ratingsAverage.toFixed(1) : '0.0'
 
     const { error, isLoading, Razorpay } = useRazorpay();
-    // const [Razorpay] = useRazorpay()
 
     const handlePayment = async () => {
+
+        if(localStorage.getItem('token') === null){
+            alert("Please login to make a purchase.")
+            navigate('/signin')
+            return;
+        }
 
 
         let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/order/${product._id}`, {
@@ -26,6 +33,8 @@ function ProductDetails() {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
         });
+
+     
         order = order.data.order;
         // console.log(order)
 

@@ -49,7 +49,8 @@ module.exports.isAuthenticated = async (req, res, next) => {
         req.user = user;
         next();
     } catch (err) {
-        next(err);
+        return res.status(401).json({ message: "Unauthorized, Login again" });
+        // next(err);
     }
 
 }

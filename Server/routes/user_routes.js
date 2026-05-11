@@ -12,9 +12,14 @@ router.post("/login", userController.signin);
 router.post("/logout", userController.logout);
 router.get("/profile",authMiddleware.isAuthenticated, userController.getProfile);
 
-router.get("/products", authMiddleware.isAuthenticated, userController.getMyProducts); // Get all products of the authenticated user
+// router.get("/products", authMiddleware.isAuthenticated, userController.getMyProducts); // Get all products of the authenticated user
 
-router.get("/products/:id", authMiddleware.isAuthenticated, userController.getProductById); // Get a specific product by ID for the authenticated user
+// router.get("/products/:id", authMiddleware.isAuthenticated, userController.getProductById); // Get a specific product by ID for the authenticated user
+
+
+router.get("/products", userController.getMyProducts); // Get all products of the authenticated user
+
+router.get("/products/:id", userController.getProductById); // Get a specific product by ID for the authenticated user
 
 router.get("/order/:id", authMiddleware.isAuthenticated, userController.createOrder); // Create an order for a specific product by ID for the authenticated user
 
