@@ -90,7 +90,7 @@ module.exports.signin = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-}
+} 
 
 module.exports.logout = async (req, res, next) => {
     try {

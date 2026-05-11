@@ -40,7 +40,7 @@ const productSchema = mongoose.Schema({
     },
 
     seller: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "User",
         required: [true, "Seller is required"],
         index: true,
@@ -121,13 +121,12 @@ const validateProduct = (product) => {
                 "string.empty": "Category is required",
             }),
 
-        seller: Joi.string()
-            .custom((value, helpers) => {
-                if (!mongoose.Types.ObjectId.isValid(value)) {
-                    return helpers.error("any.invalid");
-                }
-                return value;
-            })
+        seller: Joi.custom((value, helpers) => {
+            if (!mongoose.Types.ObjectId.isValid(value)) {
+                return helpers.error("any.invalid");
+            }
+            return value;
+        })
             .required()
             .messages({
                 "any.invalid": "Invalid seller ID",

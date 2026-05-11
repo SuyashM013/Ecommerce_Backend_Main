@@ -21,7 +21,7 @@ function ProductDetails() {
     const handlePayment = async () => {
 
 
-        let order = await axios.get(`https://ecommerce-backend-main-1.onrender.com/api/users/order/${product._id}`, {
+        let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/order/${product._id}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -40,7 +40,7 @@ function ProductDetails() {
             handler: async (response) => {
                 // console.log(response);
                 // alert("Payment Successful!");
-                const res = await axios.post(`https://ecommerce-backend-main-1.onrender.com/api/users/verify/${order.id}`, {
+                const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/verify/${order.id}`, {
                     orderId: response.razorpay_order_id,
                     paymentId: response.razorpay_payment_id,
                     signature: response.razorpay_signature,
