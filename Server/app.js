@@ -11,6 +11,7 @@ const multer = require('multer');
 const indexRoutes = require("./routes/index_routes");
 const userRoutes = require("./routes/user_routes");
 const productsRoutes = require("./routes/products_routes");
+const cartRoutes = require("./routes/cart_routes");
 
 const connectDB = require('./config/mongodb');
 connectDB();
@@ -27,6 +28,7 @@ app.get('/check', (req, res, next) => {
 app.use("/", indexRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/carts", cartRoutes);
  
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

@@ -10,6 +10,36 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
+module.exports.getMyProducts = async (req, res, next) => {
+    try {
+        const prod = await productModel.find();
+
+        return res.status(200).json({ message: "Products retrieved successfully", products: prod });
+
+    } catch (err) {
+        next(err);
+        return res.status(500).json({ message: "Failed to retrieve products" });
+    }
+} // All products fetch
+
+module.exports.getProductById = async (req, res, next) => {
+    try {
+        const prod = await productModel.findById(req.params._id);
+
+        if (!prod) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        return res.status(200).json({ prod });
+
+
+    } catch (err) {
+        next(err);
+        return res.status(500).json({ message: "Failed to retrieve product" });
+    }
+} // Single product fetch by ID
+
+
 
 module.exports.createProduct = async (req, res, next) => {
     try {
