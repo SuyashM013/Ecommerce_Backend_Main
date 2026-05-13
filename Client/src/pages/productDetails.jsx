@@ -28,7 +28,7 @@ function ProductDetails() {
         }
 
 
-        let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/order/${product._id}`, {
+        let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${product._id}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }

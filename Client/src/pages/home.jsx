@@ -3,31 +3,34 @@ const { useState, useEffect } = React
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/navbar'
+import Products from '../components/products'
 
 function Home() {
-    const [product, setProduct] = React.useState([])
-    const navigate = useNavigate()
+    // const [product, setProduct] = React.useState([])
+    // const navigate = useNavigate()
 
-    
-    const getProducts = async () => {
-        try{
-            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/products`, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            const data = await response.data
-            console.log(data) // ----------------------------------------
-            setProduct(data.products)
-            
-        } catch (error) {
-            console.error('Error fetching products:', error)
-        }
-    }
-    
-    useEffect(() => {
-        getProducts()
-    }, [])
+
+    // const getProducts = async () => {
+    //     try {
+    //         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/`,
+    //             //     {
+    //             //     headers: {
+    //             //         "Authorization": `Bearer ${localStorage.getItem('token')}`
+    //             //     }
+    //             // }
+    //         )
+    //         const data = await response.data
+    //         console.log(data) // ----------------------------------------
+    //         setProduct(data.products)
+
+    //     } catch (error) {
+    //         console.error('Error fetching products:', error)
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     getProducts()
+    // }, [])
 
     return (
         <main className='relative min-h-screen w-full overflow-hidden bg-slate-950 px-4 py-10 text-white'>
@@ -50,9 +53,10 @@ function Home() {
                     </p>
                 </div>
 
-                
+                <Products />
 
-                <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+
+                {/* <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
                     {product.map((item) => (
                         <div
                             key={item._id}
@@ -61,7 +65,7 @@ function Home() {
                         >
                             <div className='mb-4 h-40 w-full rounded-lg bg-linear-to-br from-cyan-400/20 to-fuchsia-500/20 flex items-center justify-center'>
                                 <img src={item.images[ 0 ]} alt={item.name} className='w-full h-full object-cover rounded-md' />
-                                {/* <p className='text-slate-400 text-sm'>Product Image</p> */}
+                                {/* <p className='text-slate-400 text-sm'>Product Image</p> 
                             </div>
                             <h2 className='text-lg font-semibold text-white mb-2'>{item.name}</h2>
                             <p className='text-cyan-300 font-semibold mb-2'>${item.price}</p>
@@ -75,7 +79,8 @@ function Home() {
                             </button>
                         </div>
                     ))}
-                </div>
+                </div> */}
+
             </section>
         </main>
     )
