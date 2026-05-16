@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/navbar'
 import Products from '../components/products'
+import Footer from '../components/Footer'
 
 function Home() {
     // const [product, setProduct] = React.useState([])
@@ -33,14 +34,14 @@ function Home() {
     // }, [])
 
     return (
-        <main className='relative min-h-screen w-full overflow-hidden bg-slate-950 px-4 py-10 text-white'>
+        <main className='relative  min-h-screen w-full overflow-hidden bg-slate-950  text-white'>
             <div className='absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.15),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.15),transparent_35%),linear-gradient(135deg,#020617_0%,#0f172a_55%,#111827_100%)]' />
-            <div className='absolute left-10 top-10 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl' />
+            <div className='absolute left-10 top-0  h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl' />
             <div className='absolute bottom-10 right-10 h-56 w-56 rounded-full bg-fuchsia-500/20 blur-3xl' />
 
             <Navbar />
 
-            <section className=' relative mx-auto max-w-7xl'>
+            <section className=' relative mx-auto mt-10 mb-10 max-w-7xl'>
                 <div className='mb-12 text-center'>
                     <span className='inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-cyan-100'>
                         Shop our collection
@@ -82,6 +83,8 @@ function Home() {
                 </div> */}
 
             </section>
+
+            {/* <Footer /> */}
         </main>
     )
 }

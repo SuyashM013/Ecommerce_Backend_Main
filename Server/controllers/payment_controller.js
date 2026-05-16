@@ -1,8 +1,11 @@
 
-const {productModel} = require("../models/product_model");
+const { productModel } = require("../models/product_model.js");
 
-const PaymentModel = require("../models/payment_model");
-const orderModel = require("../models/order_model");
+const PaymentModel = require("../models/payment_model.js");
+const orderModel = require("../models/order_model.js");
+
+const cartModel = require("../models/cart_model.js");
+
 
 const Razorpay = require('razorpay');
 
@@ -48,7 +51,7 @@ module.exports.verifyPayment = async (req, res, next) => {
         const { paymentId, orderId, signature } = req.body;
         const secret = process.env.RAZORPAY_KEY_SECRET;
 
-        const { validatePaymentVerification } = require("../node_modules/razorpay/dist/utils/razorpay-utils.js");
+        const { validatePaymentVerification } = require("razorpay/dist/utils/razorpay-utils.js");
 
         const isValid = validatePaymentVerification({ order_id: orderId, payment_id: paymentId }, signature, secret);
 
@@ -79,3 +82,54 @@ module.exports.verifyPayment = async (req, res, next) => {
         return res.status(500).json({ message: "Failed to verify payment" });
     }
 }
+
+module.exports.createCartOrder = async (req, res, next) => {
+    try {
+        const cart = await cartModel.findOne({ user: req.user._id }).populate("products.product");
+
+        if (!cart || cart.products.length === 0) {
+            return res.status(400).json({ message: "Cart is empty, Failed to initiate order" });
+        }
+
+        const totalAmount = cart.products.reduce((total, item) => {
+            return total + item.product.price * item.quantity;
+        }, 0);
+
+        const options = await orderModel.create({
+            user: req.user._id,
+            cart: cart._id,
+            amount: totalAmount,
+            currency: "INR",
+            receipt: cart._id.toString(),
+            status: "pending"
+        });
+
+        const order = await razorpay.orders.create(options);
+        res.status(200).json({ message: "Order created successfully", order });
+
+        const payment = await PaymentModel.create({
+            order: order.id,
+            amount: options.amount,
+            currency: options.currency,
+            status: "pending"
+        });
+
+        return res.status(200).json({ message: "Cart order initiated successfully", cart, totalAmount });
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Failed to create order from cart,Try again later" });
+    }
+}
+
+// module.exports.verifyCartPayment = async (req, res, next) => {
+//     try {
+//         const { paymentId, orderId, signature } = req.body;
+//         const secret = process.env.RAZORPAY_KEY_SECRET;
+
+
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(500).json({ message: "Failed to verify cart payment, Try again later" });
+//     }
+// }

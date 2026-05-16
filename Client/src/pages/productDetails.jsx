@@ -1,13 +1,36 @@
-import React, { useMemo, useState, useCallback } from 'react'
+import React, { useMemo, useState, useCallback, useEffect, use } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import Navbar from '../components/Navbar'
 
 function ProductDetails() {
     const location = useLocation()
     const product = location.state?.product ?? {}
     const navigate = useNavigate()
+
+    const [prod, setProduct] = useState([]);
+    const [qant, setQuant] = useState(1);
+
+    const getProducts = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/`
+
+            )
+            const data = await response.data
+            // console.log(data) // ----------------------------------------
+            setProduct(data.products)
+
+        } catch (error) {
+            console.error('Error fetching products:', error)
+        }
+    }
+
+    const prodCat = prod.filter(
+        item => item.category === `${product.category}` || item.category === 'fashion & apparel'
+    );
+
 
     const images = useMemo(() => {
         return Array.isArray(product.images) && product.images.length > 0 ? product.images : []
@@ -21,20 +44,22 @@ function ProductDetails() {
 
     const handlePayment = async () => {
 
-        if(localStorage.getItem('token') === null){
+        if (localStorage.getItem('token') === null) {
             alert("Please login to make a purchase.")
             navigate('/signin')
             return;
         }
 
 
-        let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${product._id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
+        let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/order/${product._id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
             }
-        });
+        );
 
-     
+
         order = order.data.order;
         // console.log(order)
 
@@ -49,7 +74,7 @@ function ProductDetails() {
             handler: async (response) => {
                 // console.log(response);
                 // alert("Payment Successful!");
-                const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/verify/${order.id}`, {
+                const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/order/verify/${order.id}`, {
                     orderId: response.razorpay_order_id,
                     paymentId: response.razorpay_payment_id,
                     signature: response.razorpay_signature,
@@ -77,9 +102,63 @@ function ProductDetails() {
         razorpayInstance.open();
     };
 
+    const addToCart = async (quantity = qant) => {
+        if (localStorage.getItem('token') === null) {
+            alert("Please login to add items to your cart.")
+            navigate('/signin')
+            return;
+        }
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/carts/add`, {
+            productId: product._id,
+            quantity
+        }, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        // console.log(res)
+
+        if (!res.status === 200) {
+            alert(res.data.message)
+            
+        }
+
+        alert(res.data.message)
+        navigate('/cart')
+
+
+
+
+
+        // Minimal client-side feedback — integrate with backend/cart logic as needed
+        // console.log('Adding to cart:', { productId: product._id, quantity })
+        // alert(`${quantity} item(s) added to your cart.`)
+    }
+
+    const increment = () => {
+        const max = product?.stock ?? 9999
+        setQuant(prev => Math.min(prev + 1, max))
+    }
+
+    const decrement = () => {
+        setQuant(prev => Math.max(prev - 1, 1))
+    }
+
+    useEffect(() => {
+        if (product?.images?.length > 0) {
+            setActiveImage(product.images[0]);
+        }
+        getProducts()
+    }, [product])
+
     return (
         <main className='relative min-h-screen overflow-hidden bg-slate-950 px-4 py-10 text-white'>
             <div className='absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.14),transparent_32%),linear-gradient(135deg,#020617_0%,#0f172a_55%,#111827_100%)]' />
+
+            <Navbar />
+
+
+
             <div className='absolute left-8 top-8 h-44 w-44 rounded-full bg-cyan-400/20 blur-3xl' />
             <div className='absolute bottom-8 right-8 h-56 w-56 rounded-full bg-fuchsia-500/20 blur-3xl' />
 
@@ -89,9 +168,9 @@ function ProductDetails() {
                         <p className='text-xs font-medium uppercase tracking-[0.24em] text-cyan-100'>Product details</p>
                         <h1 className='mt-1 text-lg font-semibold text-white sm:text-xl'>Premium shopping experience</h1>
                     </div>
-                    <div className='rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200'>
+                    {/* <div className='rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200'>
                         {product.category || 'Uncategorized'}
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className='grid gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
@@ -171,8 +250,8 @@ function ProductDetails() {
 
                             <div className='grid gap-4 sm:grid-cols-2'>
                                 <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
-                                    <p className='text-xs uppercase tracking-[0.2em] text-slate-400'>Category</p>
-                                    <p className='mt-2 text-lg font-medium text-white'>{product.category || 'N/A'}</p>
+                                    <p className='text-xs uppercase tracking-[0.2em] text-slate-400'>Quantity</p>
+                                    <p className='mt-2 text-lg font-medium text-white'>{product.stock > 0 ? 'In Stock' : 'Out of Stock'}</p>
                                 </div>
                                 <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
                                     <p className='text-xs uppercase tracking-[0.2em] text-slate-400'>Rating</p>
@@ -181,10 +260,32 @@ function ProductDetails() {
                             </div>
                         </div>
 
-                        <div> {product._id}</div>
+                        {/* <div> {product._id}</div> */}
 
-                        <div className='mt-8 flex flex-col gap-3 sm:flex-row'>
-                            <button className='rounded-2xl bg-linear-to-r from-cyan-400 via-sky-400 to-indigo-500 px-5 py-3.5 font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-110'>
+                        <div className='mt-8 flex flex-col gap-3 sm:flex-row items-center'>
+                            <div className='flex items-center gap-3'>
+                                <button
+                                    onClick={decrement}
+                                    aria-label='Decrease quantity'
+                                    className='h-10 w-10 rounded-lg border border-white/10 bg-white/5 text-white/90 flex items-center justify-center text-xl font-semibold transition hover:bg-white/10'
+                                >
+                                    -
+                                </button>
+
+                                <div className='min-w-[56px] text-center text-lg font-medium'>
+                                    {qant}
+                                </div>
+
+                                <button
+                                    onClick={increment}
+                                    aria-label='Increase quantity'
+                                    className='h-10 w-10 rounded-lg border border-white/10 bg-white/5 text-white/90 flex items-center justify-center text-xl font-semibold transition hover:bg-white/10'
+                                >
+                                    +
+                                </button>
+                            </div>
+
+                            <button onClick={() => addToCart(qant)} className='rounded-2xl bg-linear-to-r from-cyan-400 via-sky-400 to-indigo-500 px-5 py-3.5 font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-110'>
                                 Add to Cart
                             </button>
                             <button onClick={handlePayment} className='rounded-2xl border border-white/10 bg-red-500 px-5 py-3.5 font-semibold text-slate-300 shadow-lg shadow-white/10 transition hover:border-white/20 hover:bg-red-600 cursor-pointer'>
@@ -194,6 +295,76 @@ function ProductDetails() {
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section className=' relative mx-auto max-w-7xl mt-16 rounded-3xl border border-white/10 bg-white/10 p-6 text-sm text-slate-300 shadow-2xl shadow-cyan-950/30 backdrop-blur-2xl'>
+
+                <div className='flex justify-between items-center mb-6'>
+                    <h1 className='mt-1 text-lg font-semibold text-white sm:text-xl'>See more products like this</h1>
+                    <h1 className='text-2xl font-bold text-white block capitalize'>{product.category}</h1>
+                </div>
+
+                <div className='flex flex-col gap-5'>
+
+
+                    <div className='overflow-x-auto scrollbar-hide'>
+
+                        <div className='flex gap-6 min-w-screen'>
+
+                            {prodCat.map((item) => (
+
+                                <div
+                                    key={item._id}
+                                    onClick={() =>
+
+                                        navigate(`/product-details`, {
+                                            state: { product: item }
+                                        })
+
+                                    }
+                                    className='w-72 shrink-0 cursor-pointer group overflow-hidden rounded-2xl border border-white/10 bg-white/10 p-4 shadow-lg shadow-cyan-950/20 transition hover:border-cyan-300/40 hover:bg-white/15 backdrop-blur-2xl'
+                                >
+
+                                    <div className='mb-4 h-40 w-full rounded-lg bg-linear-to-br from-cyan-400/20 to-fuchsia-500/20 flex items-center justify-center'>
+                                        <img
+                                            src={item.images[0]}
+                                            alt={item.name}
+                                            className='w-full h-full object-cover rounded-md'
+                                        />
+                                    </div>
+
+                                    <h2 className='text-lg font-semibold text-white mb-2'>
+                                        {item.name}
+                                    </h2>
+
+                                    <p className='text-cyan-300 font-semibold mb-2'>
+                                        ${item.price}
+                                    </p>
+
+                                    <p className='text-sm text-slate-300 mb-2 line-clamp-2'>
+                                        {item.description}
+                                    </p>
+
+                                    <div className='mb-4 flex justify-between text-xs text-slate-400'>
+                                        <span>Stock: {item.stock}</span>
+                                        <span>{item.category}</span>
+                                    </div>
+
+                                    <button className='w-full rounded-xl bg-linear-to-r from-cyan-400 via-sky-400 to-indigo-500 px-4 py-2.5 font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:brightness-110'>
+                                        Add to Cart
+                                    </button>
+
+                                </div>
+                            ))}
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
             </section>
         </main>
     )

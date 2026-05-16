@@ -12,6 +12,7 @@ const indexRoutes = require("./routes/index_routes");
 const userRoutes = require("./routes/user_routes");
 const productsRoutes = require("./routes/products_routes");
 const cartRoutes = require("./routes/cart_routes");
+const orderRoutes = require("./routes/order_route");
 
 const connectDB = require('./config/mongodb');
 connectDB();
@@ -23,10 +24,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/check', (req, res, next) => {
-    res.send('Working good as fuck');
-})
+    res.send('working good as fuck');
+}) 
 app.use("/", indexRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/order", orderRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/carts", cartRoutes);
  
