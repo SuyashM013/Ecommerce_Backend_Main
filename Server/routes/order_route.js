@@ -10,7 +10,9 @@ router.post("/verify/:id", authMiddleware.isAuthenticated, paymentController.ver
 
 router.get("/cart/:id", authMiddleware.isAuthenticated, paymentController.createCartOrder); // Get the cart for the authenticated user
 
-// router.post("/cart/verify/:id", authMiddleware.isAuthenticated, paymentController.verifyCartPayment); // Verify payment for the authenticated user's cart
+router.post("/cart/create", authMiddleware.isAuthenticated, paymentController.createCartOrder); // Create an order for the authenticated user's cart
+
+router.post("/cart/verify/:id", authMiddleware.isAuthenticated, paymentController.verifyCartPayment); // Verify payment for the authenticated user's cart
 
 
 

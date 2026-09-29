@@ -5,7 +5,7 @@ import Signin from './pages/signin'
 import Home from './pages/home'
 import ProductDetails from './pages/productDetails'
 import Footer from './components/Footer'
-import Navbar from './components/Navbar'
+// import Navbar from './components/Navbar'
 import Cart from './pages/cart'
 
 function App() {

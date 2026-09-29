@@ -31,7 +31,6 @@ function ProductDetails() {
         item => item.category === `${product.category}` || item.category === 'fashion & apparel'
     );
 
-
     const images = useMemo(() => {
         return Array.isArray(product.images) && product.images.length > 0 ? product.images : []
     }, [product.images])

@@ -1,44 +1,105 @@
-// const mongoose = require('mongoose');
+// // const mongoose = require('mongoose');
+// import mongoose from 'mongoose';
+
+// const orderSchema = mongoose.Schema({
+//     products: [
+//         {
+//             type: mongoose.Schema.Types.ObjectId,
+//             ref: "Product",
+//             required: true,
+//         },
+//     ],
+
+//     buyer: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "User",
+//         required: true,
+//         index: true,
+//     },
+
+//     payment: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: "Payment",
+//         required: true,
+//     },
+
+//     totalAmount: {
+//         type: Number,
+//         required: true,
+//         min: 0,
+//     },
+
+//     status: {
+//         type: String,
+//         enum: ["pending", "paid", "shipped", "delivered", "cancelled"],
+//         default: "pending",
+//     },
+// },
+//     {
+//         timestamps: true,
+//         versionKey: false,
+//     }
+// );
+
+// export default mongoose.model("Order", orderSchema);
+
 import mongoose from 'mongoose';
 
-const orderSchema = mongoose.Schema({
-    products: [
-        {
+const orderSchema = mongoose.Schema(
+    {
+        products: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product",
+                required: true,
+            },
+        ],
+
+        buyer: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
+            ref: "User",
             required: true,
+            index: true,
         },
-    ],
 
-    buyer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true,
-    },
+        payment: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Payment",
+        },
 
-    payment: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Payment",
-        required: true,
-    },
+        totalAmount: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
 
-    totalAmount: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
+        razorpayOrderId: {
+            type: String,
+        },
 
-    status: {
-        type: String,
-        enum: ["pending", "paid", "shipped", "delivered", "cancelled"],
-        default: "pending",
+        paymentId: {
+            type: String,
+        },
+
+        status: {
+            type: String,
+            enum: [
+                "pending",
+                "paid",
+                "shipped",
+                "delivered",
+                "cancelled"
+            ],
+            default: "pending",
+        },
     },
-},
     {
         timestamps: true,
         versionKey: false,
     }
 );
 
-export default mongoose.model("Order", orderSchema);
+const orderModel = mongoose.model("Order", orderSchema);
+
+export default orderModel;
+// export default mongoose.model("Order", orderSchema);

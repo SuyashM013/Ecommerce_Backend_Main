@@ -64,7 +64,7 @@ function products() {
 
                 <h1 className='text-4xl font-bold text-white block'>Electronics</h1>
 
-                <div className='overflow-x-auto scrollbar-hide'>
+                <div className='overflow-x-auto '>
 
                     <div className='flex gap-6 min-w-screen'>
 

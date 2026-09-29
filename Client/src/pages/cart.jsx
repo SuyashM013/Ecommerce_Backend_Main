@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Navbar from '../components/Navbar'
+import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
+
 
 function Cart() {
     const navigate = useNavigate()
@@ -10,10 +12,13 @@ function Cart() {
     const [error, setError] = useState(null)
     const [updatingItems, setUpdatingItems] = useState(new Set())
 
+    const { isLoading, Razorpay } = useRazorpay();
+
     // Fetch cart on component mount
     useEffect(() => {
         fetchCart()
     }, [])
+
 
     // Fetch cart from backend
     const fetchCart = async () => {
@@ -153,19 +158,196 @@ function Cart() {
     const shipping = subtotal > 0 ? (subtotal > 100 ? 0 : 10) : 0
     const total = subtotal + tax + shipping
 
-    if (loading) {
-        return (
-            <div className="min-h-screen w-full bg-slate-950 text-white">
-                <Navbar />
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="w-12 h-12 rounded-full border-4 border-cyan-400/30 border-t-cyan-400 animate-spin"></div>
-                        <p className="text-cyan-300">Loading your cart...</p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
+
+    // const handlePayment = async () => {
+
+    //     if (localStorage.getItem('token') === null) {
+    //         alert("Please login to make a purchase.")
+    //         navigate('/signin')
+    //         return;
+    //     }
+
+
+    //     let order = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/order/cart/${product._id}`,
+    //         {
+    //             headers: {
+    //                 Authorization: `Bearer ${localStorage.getItem('token')}`
+    //             }
+    //         }
+    //     );
+
+
+    //     order = order.data.order;
+    //     console.log(order)
+
+    //     const options = {
+    //         key: "rzp_test_23AYUtqfvaYhUd",
+    //         amount: order.amount, // Amount in paise
+    //         currency: order.currency, // Currency
+    //         name: "Achma Dior ",
+    //         image: "https://example.com/your_logo",
+    //         description: `Purchase of ${product.name}`,
+    //         order_id: order.id, // Generate order_id on server
+    //         handler: async (response) => {
+    //             // console.log(response);
+    //             // alert("Payment Successful!");
+    //             const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/order/verify/${order.id}`, {
+    //                 orderId: response.razorpay_order_id,
+    //                 paymentId: response.razorpay_payment_id,
+    //                 signature: response.razorpay_signature,
+    //             }, {
+    //                 headers: {
+    //                     Authorization: `Bearer ${localStorage.getItem('token')}`
+    //                 }
+    //             });
+    //             console.log(res.data);
+    //         },
+    //         prefill: {
+    //             name: "Suyash Mishra",
+    //             email: "john.doe@example.com",
+    //             contact: "9999999999",
+    //         },
+    //         notes: {
+    //             productId: product._id,
+    //         },
+    //         // theme: {
+    //         //     color: "#F37254",
+    //         // },
+    //     };
+
+    //     const razorpayInstance = new Razorpay(options);
+    //     razorpayInstance.open();
+
+
+
+    //     if (loading) {
+    //         return (
+    //             <div className="min-h-screen w-full bg-slate-950 text-white">
+    //                 <Navbar />
+    //                 <div className="flex items-center justify-center min-h-screen">
+    //                     <div className="flex flex-col items-center gap-4">
+    //                         <div className="w-12 h-12 rounded-full border-4 border-cyan-400/30 border-t-cyan-400 animate-spin"></div>
+    //                         <p className="text-cyan-300">Loading your cart...</p>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         )
+    //     }
+    // };
+
+    const handlePayment = async () => {
+        try {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("Please login to make a purchase.");
+                navigate('/signin');
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert("Your cart is empty.");
+                return;
+            }
+
+            // 1. Create Razorpay order from cart
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/order/cart/create`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const { order } = response.data;
+
+            console.log("Razorpay Order:", order);
+
+            // 2. Razorpay checkout options
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+                amount: order.amount,
+                currency: order.currency,
+
+                name: "Achma Dior",
+                description: "Cart Checkout",
+
+                order_id: order.id,
+
+                handler: async (response) => {
+                    try {
+                        console.log("Payment Response:", response);
+
+                        // 3. Verify payment on backend
+                        const verifyResponse = await axios.post(
+                            `${import.meta.env.VITE_BACKEND_URL}/api/order/cart/verify/${response.razorpay_order_id}`,
+                            {
+                                paymentId: response.razorpay_payment_id,
+                                // orderId: response.razorpay_order_id,
+                                signature: response.razorpay_signature
+                            },
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            }
+                        );
+
+                        console.log(
+                            "Verification Response:",
+                            verifyResponse.data
+                        );
+
+                        alert("Payment successful!");
+
+                        // 4. Refresh cart
+                        await fetchCart();
+
+                    } catch (error) {
+                        console.error(
+                            "Payment verification failed:",
+                            error
+                        );
+
+                        alert(
+                            error.response?.data?.message ||
+                            "Payment verification failed."
+                        );
+                    }
+                },
+
+                prefill: {
+                    name: "Suyash Mishra",
+                    email: "john.doe@example.com",
+                    contact: "9999999999"
+                },
+
+                notes: {
+                    cartCheckout: "true"
+                },
+
+                theme: {
+                    color: "#06b6d4"
+                }
+            };
+
+            // 5. Open Razorpay
+            const razorpayInstance = new Razorpay(options);
+
+            razorpayInstance.open();
+
+        } catch (error) {
+            console.error("Checkout Error:", error);
+
+            alert(
+                error.response?.data?.message ||
+                "Failed to initiate checkout. Please try again."
+            );
+        }
+    };
 
     return (
         <div className="min-h-screen w-full bg-slate-950 text-white">
@@ -228,7 +410,7 @@ function Cart() {
                                 tax={tax}
                                 shipping={shipping}
                                 total={total}
-                                onCheckout={() => navigate('/checkout')}
+                                onCheckout={handlePayment}
                                 onContinueShopping={() => navigate('/')}
                                 onClearCart={clearCart}
                             />
@@ -241,7 +423,7 @@ function Cart() {
 }
 
 // Cart Item Component
-function CartItem({ item, onUpdateQuantity, onRemove, isUpdating }) {
+function CartItem({ item, onUpdateQuantity, onRemove, isUpdating, onCheckout }) {
     const product = item.product || {}
     const image = Array.isArray(product.images) && product.images.length > 0
         ? product.images[0]
@@ -251,7 +433,7 @@ function CartItem({ item, onUpdateQuantity, onRemove, isUpdating }) {
         <div className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur hover:border-cyan-300/30 hover:bg-white/10 transition-all">
             <div className="flex gap-4">
                 {/* Product Image */}
-                <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-800">
+                <div className="shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-800">
                     <img
                         src={image}
                         alt={product.name}
@@ -260,7 +442,7 @@ function CartItem({ item, onUpdateQuantity, onRemove, isUpdating }) {
                 </div>
 
                 {/* Product Details */}
-                <div className="flex-grow">
+                <div className="grow">
                     <h3 className="font-semibold text-white mb-1">{product.name}</h3>
                     <p className="text-sm text-slate-400 mb-2">{product.category}</p>
                     <p className="text-cyan-400 font-semibold">
@@ -338,7 +520,7 @@ function OrderSummary({ subtotal, tax, shipping, total, onCheckout, onContinueSh
             <div className="space-y-3">
                 <button
                     onClick={onCheckout}
-                    className="w-full rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 py-3 font-semibold text-slate-950 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                    className="w-full rounded-lg bg-linear-to-r from-cyan-400 to-blue-500 py-3 font-semibold text-slate-950 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
                 >
                     Proceed to Checkout
                 </button>
