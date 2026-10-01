@@ -2,7 +2,7 @@ import React from 'react'
 const { useState, useEffect } = React
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/navbar'
+import Navbar from '../components/Navbar'
 import Products from '../components/products'
 import Footer from '../components/Footer'
 
@@ -84,7 +84,7 @@ function Home() {
 
             </section>
 
-            {/* <Footer /> */}
+            <Footer />
         </main>
     )
 }
